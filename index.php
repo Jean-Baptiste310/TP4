@@ -120,15 +120,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
     <h1>Site de Recettes !</h1>
 
     <!-- Si l'utilisateur existe, on affiche les recettes -->
-    <?php if(isset($_SESSION['LOGGED_USER'])): ?>
-        <?php foreach(getRecipes($recipes, 5) as $recipe) : ?>
-            <article>
-                <h3><?php echo $recipe['title']; ?></h3>
-                <div><?php echo $recipe['recipe']; ?></div>
-                <i><?php echo displayAuthor($recipe['author'], $users); ?></i>
-            </article>
-        <?php endforeach ?>
-    <?php endif; ?>
+    <?php if (isset($_SESSION['LOGGED_USER'])): ?>
+
+    <?php foreach (getRecipes($recipes) as $recipe): ?>
+
+        <article>
+
+            <h3>
+                <?php echo htmlspecialchars($recipe['title']); ?>
+            </h3>
+
+            <div>
+                <?php echo htmlspecialchars($recipe['recipe']); ?>
+            </div>
+
+            <i>
+                <?php echo displayAuthor($recipe['author'], $users); ?>
+            </i>
+
+            <?php if ($_SESSION['LOGGED_USER']['email'] === $recipe['author']): ?>
+
+                <a
+                    href="edition.php?id=<?php echo $recipe['recipe_id']; ?>"
+                    class="btn btn-warning mt-2"
+                >
+                    Modifier
+                </a>
+
+            <?php endif; ?>
+
+        </article>
+
+    <?php endforeach; ?>
+
+<?php endif; ?>
     </div>
 
     <?php include_once('footer.php'); ?>
