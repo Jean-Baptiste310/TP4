@@ -23,6 +23,85 @@
         include_once('variables.php');
         include_once('functions.php');
     ?>
+
+    <?php if (isset($_SESSION['LOGGED_USER'])): ?>
+
+    <form action="index.php" method="post">
+
+        <?php if (isset($errorMessage)): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo $errorMessage; ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">
+                Titre de la recette
+            </label>
+
+            <input
+                type="text"
+                class="form-control"
+                id="title"
+                name="title"
+                placeholder="Exemple : Gâteau au chocolat"
+                required
+            >
+        </div>
+
+        <div class="mb-3">
+            <label for="recipe" class="form-label">
+                Recette
+            </label>
+
+            <textarea
+                class="form-control"
+                id="recipe"
+                name="recipe"
+                rows="8"
+                placeholder="Écrivez votre recette ici..."
+                required
+            ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Créer la recette
+        </button>
+
+    </form>
+
+<?php else: ?>
+
+    <div class="alert alert-warning">
+        Vous devez être connecté pour créer une recette.
+    </div>
+
+<?php endif; ?>
+
+<?php
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
+
+    // Requête SQL
+    $sqlQuery = '
+        INSERT INTO recipes(title, recipe, author, is_enabled)
+        VALUES(:title, :recipe, :author, :is_enabled)
+    ';
+
+    // Préparation
+    $insertRecipe = $db->prepare($sqlQuery);
+
+    // Exécution
+    $insertRecipe->execute([
+        'title' => $_POST['title'],
+        'recipe' => $_POST['recipe'],
+        'author' => $_SESSION['LOGGED_USER']['email'],
+        'is_enabled' => 1
+    ]);
+}
+?>
+
+
     <?php
 
     $sqlQuery = 'SELECT * FROM recipes WHERE is_enabled = 1';
