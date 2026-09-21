@@ -147,6 +147,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
                     Modifier
                 </a>
 
+                <a
+                   href="delete.php?id=<?php echo $recipe['recipe_id']; ?>"
+                   class="btn btn-danger mt-2"
+                 >
+                   Supprimer
+                </a>
+
             <?php endif; ?>
 
         </article>
