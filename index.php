@@ -19,8 +19,20 @@
 
     <!-- Inclusion des fichiers utilitaires -->
     <?php 
+        include_once('mysql.php');
         include_once('variables.php');
         include_once('functions.php');
+    ?>
+    <?php
+
+    $sqlQuery = 'SELECT * FROM recipes WHERE is_enabled = 1';
+
+    $recipesStatement = $db->prepare($sqlQuery);
+
+    $recipesStatement->execute();
+
+    $recipes = $recipesStatement->fetchAll();
+
     ?>
 
     <!-- Inclusion du formulaire de connexion -->
