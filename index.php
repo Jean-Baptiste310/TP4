@@ -138,6 +138,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
                 <?php echo displayAuthor($recipe['author'], $users); ?>
             </i>
 
+            <form action="comment.php" method="post" class="mt-3">
+
+            <input
+            type="hidden"
+            name="recipe_id"
+            value="<?php echo $recipe['recipe_id']; ?>"
+             >
+
+            <div class="mb-2">
+           <label for="comment">
+            Votre commentaire
+           </label>
+
+           <textarea
+            class="form-control"
+            name="comment"
+            rows="3"
+            required
+           ></textarea>
+           </div>
+
+           <button type="submit" class="btn btn-primary">
+               Commenter
+          </button>
+
+          </form>
+          <?php
+
+        $commentsQuery = $db->prepare('
+            SELECT comments.comment, users.full_name
+            FROM comments
+            JOIN users ON comments.user_id = users.user_id
+            WHERE comments.recipe_id = :recipe_id
+            ORDER BY comments.comment_id DESC
+        ');
+
+            $commentsQuery->execute([
+                'recipe_id' => $recipe['recipe_id']
+            ]);
+
+            $comments = $commentsQuery->fetchAll();
+
+            ?>
+
+            <h4 class="mt-3">Commentaires</h4>
+
+            <?php foreach ($comments as $comment): ?>
+
+                <div class="border rounded p-2 mb-2">
+
+                    <strong>
+                        <?php echo htmlspecialchars($comment['full_name']); ?>
+                    </strong>
+
+                    <p class="mb-0">
+                        <?php echo htmlspecialchars($comment['comment']); ?>
+                    </p>
+
+                </div>
+
+            <?php endforeach; ?>
+
             <?php if ($_SESSION['LOGGED_USER']['email'] === $recipe['author']): ?>
 
                 <a
