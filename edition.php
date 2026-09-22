@@ -39,12 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $title = trim($_POST['title'] ?? '');
     $recipeText = trim($_POST['recipe'] ?? '');
+    $validation = isset($_POST['validation']);
 
     if (empty($title)) {
         $errorMessage = 'Le titre est obligatoire.';
     } elseif (empty($recipeText)) {
         $errorMessage = 'La recette est obligatoire.';
-    } else {
+    } elseif (!$validation) { 
+        $errorMessage = 'Vous devez cocher la case de validation.'; 
+        } else {
 
         $sqlQuery = '
             UPDATE recipes
@@ -135,6 +138,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ><?php echo htmlspecialchars($recipe['recipe']); ?></textarea>
         </div>
 
+        <div class="mb-3 form-check">
+            <input 
+                type="checkbox" 
+                class="form-check-input" 
+                id="validation" 
+                name="validation" 
+            >
+            <label class="form-check-label" for="validation">
+                Je confirme vouloir modifier cette recette.
+            </label>
+        </div>
 
         <button type="submit" class="btn btn-primary">
             Modifier la recette

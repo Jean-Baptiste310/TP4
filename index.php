@@ -138,36 +138,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
                 <?php echo displayAuthor($recipe['author'], $users); ?>
             </i>
 
-            <form action="comment.php" method="post" class="mt-3">
+            <?php
+
+            $averageQuery = $db->prepare('
+                SELECT ROUND(AVG(review), 2) AS moyenne
+                FROM comments
+                WHERE recipe_id = :recipe_id
+            ');
+
+            $averageQuery->execute([
+                'recipe_id' => $recipe['recipe_id']
+            ]);
+
+            $average = $averageQuery->fetch();
+
+            ?>
+
+            <p>
+                <strong>
+                    Note moyenne :
+                </strong>
+
+                <?php if ($average['moyenne'] !== null): ?>
+
+                    <?php echo $average['moyenne']; ?>/5
+
+                <?php else: ?>
+
+                    Aucune note
+
+                <?php endif; ?>
+            </p>
+
+            
+        <form action="comment.php" method="post" class="mt-3">
 
             <input
-            type="hidden"
-            name="recipe_id"
-            value="<?php echo $recipe['recipe_id']; ?>"
-             >
+                type="hidden"
+                name="recipe_id"
+                value="<?php echo $recipe['recipe_id']; ?>"
+            >
 
             <div class="mb-2">
-           <label for="comment">
-            Votre commentaire
-           </label>
+                <label for="comment" class="form-label">
+                    Votre commentaire
+                </label>
 
-           <textarea
-            class="form-control"
-            name="comment"
-            rows="3"
-            required
-           ></textarea>
-           </div>
+                <textarea
+                    class="form-control"
+                    id="comment"
+                    name="comment"
+                    rows="3"
+                    required
+                ></textarea>
+            </div>
 
-           <button type="submit" class="btn btn-primary">
-               Commenter
-          </button>
+            <div class="mb-2">
+                <label for="review" class="form-label">
+                    Votre note
+                </label>
 
-          </form>
+                <select
+                    class="form-select"
+                    id="review"
+                    name="review"
+                    required
+                >
+                    <option value="">-- Choisissez une note --</option>
+                    <option value="1">1/5</option>
+                    <option value="2">2/5</option>
+                    <option value="3">3/5</option>
+                    <option value="4">4/5</option>
+                    <option value="5">5/5</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Commenter
+            </button>
+
+        </form>
+
           <?php
 
         $commentsQuery = $db->prepare('
-            SELECT comments.comment, users.full_name
+            SELECT 
+                comments.comment,
+                comments.review,
+                comments.created_at,
+                users.full_name
             FROM comments
             JOIN users ON comments.user_id = users.user_id
             WHERE comments.recipe_id = :recipe_id
@@ -195,6 +254,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
                     <p class="mb-0">
                         <?php echo htmlspecialchars($comment['comment']); ?>
                     </p>
+
+                    <small class="text-muted">
+                        Note : <?php echo htmlspecialchars($comment['review']); ?>/5
+                        -
+                        <?php echo htmlspecialchars($comment['created_at']); ?>
+                    </small>
 
                 </div>
 

@@ -8,6 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
 
     $recipeId = $_POST['recipe_id'];
     $comment = $_POST['comment'];
+    $review = (float) $_POST['review'];
+
+    // Vérifier que la note est comprise entre 0 et 5
+    if ($review < 0 || $review > 5) {
+        die('La note doit être comprise entre 0 et 5.');
+    }
 
     // Récupérer le user_id grâce à l'email
     $userQuery = $db->prepare('
@@ -22,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
 
     $user = $userQuery->fetch();
 
-    // Ajouter le commentaire
+    // Ajouter le commentaire et la note
     $sqlQuery = '
-        INSERT INTO comments(user_id, recipe_id, comment)
-        VALUES(:user_id, :recipe_id, :comment)
+        INSERT INTO comments(user_id, recipe_id, comment, review)
+        VALUES(:user_id, :recipe_id, :comment, :review)
     ';
 
     $insertComment = $db->prepare($sqlQuery);
@@ -33,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['LOGGED_USER'])) {
     $insertComment->execute([
         'user_id' => $user['user_id'],
         'recipe_id' => $recipeId,
-        'comment' => $comment
+        'comment' => $comment,
+        'review' => $review
     ]);
 }
 
